@@ -1,0 +1,23 @@
+{
+  "name": "book-management",
+  "version": "1.0.0",
+  "description": "\"book management project\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PrachiSharmaPS/Book-Management.git"
+  },
+  "author": "\"group\"",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PrachiSharmaPS/Book-Management/issues"
+  },
+  "homepage": "https://github.com/PrachiSharmaPS/Book-Management#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^6.7.3"
+  }
+}
