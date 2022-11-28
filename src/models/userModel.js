@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
     },
     name: {
          type: String,
-         required: true 
+         required: true, 
+         trim:true
         },
 
     phone: {
@@ -21,7 +22,8 @@ const userSchema = new mongoose.Schema({
 
     email:  { 
         type : String,
-         required:true
+         required:true,
+         unique:true
         },
       
     password:{  
@@ -32,7 +34,7 @@ const userSchema = new mongoose.Schema({
     address: {
         street : {type: String},
         city : {type: String},
-        pincode: {type: String},
+        pincode: {type: Number},
 
     }
 
