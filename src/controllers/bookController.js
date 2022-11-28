@@ -38,16 +38,15 @@ try{
     return res.status(500).send({status:false, message:err.message})
 }
 }
-//---------------------------get books----
+//---------------------------get books--------------------------------------------------------------------
 const getbooks = async function (req,res){
 
     try {
 
-    let data = req.query//---
+    let data = req.query
+    let books = await bookModel.find({$and:[data, { isDeleted: false }]}).sort({title:1}).select({_id:1,title:1,excerpt:1, userId:1, category:1, releasedAt:1})
 
-    let books = await bookModel.find({data}).sort({title: 1}).select({_id:1,title:1,excerpt:1,userld:1,category:1,reviews:1,releasedAt:1})
-
-    if (Object.keys(books).length == 0){return res.status(404).send({status:false ,msg: "no books found"})}
+    if (Object.keys(books).length == 0){return res.status(404).send({status:false ,msg: "No such books found"})}
 
     res.status(200).send({status:true,msg:"Success",data:books})
 
@@ -57,6 +56,5 @@ const getbooks = async function (req,res){
         
     }
 }
-
 
 module.exports={createBook,getbooks}

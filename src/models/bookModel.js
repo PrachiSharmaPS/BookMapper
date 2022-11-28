@@ -39,7 +39,7 @@ const bookSchema= new mongoose.Schema({
         }, 
         isDeleted: {
             type:Boolean, 
-            default: false
+            default:false
         },
         releasedAt: {
             type:Date,
