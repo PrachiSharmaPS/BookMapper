@@ -48,8 +48,9 @@ const loginData = async function (req, res) {
   
       let userToken = jwt.sign({
         UserId: userInfo._id.toString()
+        //-----iat
       },
-        'Blook-Project',{expiresIn:"18000s"}
+        'Book-Project',{expiresIn:"18000s"}
       )
       return res.status(200).send({Status: true, Msg: " Your JWT Token is successful generated",  MyToken: userToken })
     }
