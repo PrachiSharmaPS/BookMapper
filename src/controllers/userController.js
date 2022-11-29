@@ -12,7 +12,7 @@ try {
     let data = req.body
     if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "plzz give some data" })
 
-    const { title, name, phone, email, password, address} = data//-----
+    const { title, name, phone, email, password} = data
 
     if (!title || !name || !phone || !email ||!password) {
         return res.status(400).send({ status: false, msg: "Please Enter mandatory details" })}
@@ -47,8 +47,8 @@ const loginData = async function (req, res) {
         return res.status(400).send({ Status: false, massage: "Plase Enter Valid UserName And Password" })}
   
       let userToken = jwt.sign({
-        UserId: userInfo._id,
-        iat : Date.now()
+        UserId: userInfo._id.toString()
+        //-----iat
       },
         'Book-Project',{expiresIn:"18000s"}
       )
