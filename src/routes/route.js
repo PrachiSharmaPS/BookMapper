@@ -9,5 +9,12 @@ router.post("/login",userController.loginData)
 router.post("/books",bookController.createBook)
 router.get("/books",bookController.getbooks)
 
+
+
+router.all("/*",function(req,res){
+    res.status(404).send({msg:"invalid http request"})
+})
+
+
 module.exports=router
 
