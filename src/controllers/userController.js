@@ -27,7 +27,7 @@ try {
     const validPassword = passwordFormat.test(password)
     if (!validPassword){return res.status(400).send({ status: false, msg: " Incorrect Password, It should be of 6-10 digits with atlest one special character, alphabet and number" });}
 
-    const chkPhone= await userModel.findOne({$or:[{phone:phone},{email:email}, {isDeleted: false }]})
+    const chkPhone= await userModel.findOne({phone:phone},{email:email},{isDeleted: false })
     if (chkPhone)return res.status(400).send({ status: false, msg: "Phone/email already exists" });
 
 
@@ -47,11 +47,12 @@ const loginData = async function (req, res) {
         return res.status(400).send({ Status: false, massage: "Plase Enter Valid UserName And Password" })}
   
       let userToken = jwt.sign({
-        UserId: userInfo._id.toString()
-        //-----iat
+        UserId: userInfo._id,
+        iat : Date.now()
       },
         'Book-Project',{expiresIn:"18000s"}
       )
+
       return res.status(200).send({Status: true, Msg: " Your JWT Token is successful generated",  MyToken: userToken })
     }
     catch (err) {
