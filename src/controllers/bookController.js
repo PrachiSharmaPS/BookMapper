@@ -11,19 +11,20 @@ const createBook=async function(req,res){
 try{
     const data=req.body;
 
-    if(Object.keys(data).length == 0){
-    return res.status(400).send({status:false, message:"Please provide Data in request"})
-    }
+    if(Object.keys(data).length == 0){return res.status(400).send({status:false, message:"Please provide Data in request"})}
+
     const {userId,title,excerpt,ISBN,category,subcategory}=data
+    
 //------------checking all the mandatory fields-------
+
     if(!userId || !title || !excerpt || !ISBN || !category || !subcategory){
         return res.status(400).send({status:false, message:"Please provide all necessary book Details"})     }
 
     const bookInfo=await bookModel.findOne({$or:[{title:title},{ISBN:ISBN}]})
-     if(bookInfo){
-            return res.status(400).send({status:false,message:"title/ISBN is already exists"})
-        }
+
+    if(bookInfo){return res.status(400).send({status:false,message:"title/ISBN is already exists"})}
     if (!ISBNregex.test(ISBN)) return res.status(400).send({ status: false, msg: "Please Enter Valid ISBN number" })
+
    //if (!nameregex.test(title)) return res.status(400).send({ status: false, msg: "Please Enter Valid title" })
 
     if(!mongoose.isValidObjectId(userId))
@@ -72,8 +73,6 @@ try {
     
     const bookid = req.params.bookId
 
-   // if(Object.keys(bookid).length == 0) {return res.status(400).send({status:false, message:"Please provide bookid in parems"})}
-
     if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
 
     let data = await bookModel.findOne({_id: bookid},{isDeleted:false})
@@ -106,9 +105,6 @@ try {
     if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
 
     const bodydata = req.body
-
-   // if(Object.keys(bodydata).length == 0) {return res.status(400).send({status:false, message:"Please provide book in body"})}
-
     const {title,excerpt,releaseAt,ISBN} = bodydata
 
     const Obj = {}

@@ -1,17 +1,26 @@
 const express=require("express")
 const router=express.Router()
  
-const bookController=require("../controllers/bookController")
-const userController=require("../controllers/userController")
-const middleware = require("../middleware/middleware")
+const {createBook,createBook,getbooks,Updatebook,bookbyid,deletebyId}=require("../controllers/bookController")
+const {loginData,createUser} = require("../controllers/userController")
+const  {Authenticate,Authorization} = require("../middleware/middleware")
+const {createReview,updatereview} = require("../controllers/reviewController")
+
  
-router.post("/register",userController.createUser)
-router.post("/login",userController.loginData)
-router.post("/books",middleware.Authenticate,middleware.Authorization,bookController.createBook)
-router.get("/books",middleware.Authenticate,bookController.getbooks)
-router.get("/books/:bookId",middleware.Authenticate,bookController.bookbyid)
-router.put("/books/:bookId",middleware.Authenticate,middleware.Authorization,bookController.Updatebook)
-router.delete("/books/:bookId",middleware.Authenticate,middleware.Authorization,bookController.deletebyId)
+router.post("/register",createUser)
+router.post("/login",loginData)
+router.post("/books",Authenticate,Authorization,createBook)
+router.post("/books/:bookId/review",Authenticate,Authorization,createReview)
+
+router.get("/books",Authenticate,getbooks)
+router.get("/books/:bookId",Authenticate,bookbyid)
+
+router.put("/books/:bookId",Authenticate,Authorization,Updatebook)
+router.put("/books/:bookId/review/:reviewId",Authenticate,Authorization,updatereview)
+
+
+router.delete("/books/:bookId",Authenticate,Authorization,deletebyId)
+
 
 
 

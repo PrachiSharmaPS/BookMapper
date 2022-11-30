@@ -11,11 +11,13 @@ const Authenticate = function(req,res,next){
 
     if (!token)return res.status(400).send({ Status: false, message: "plz provide token"})
 
-    const decodedtoken = jwt.verify(token,"Book-Project")
-
-    if (!decodedtoken)return res.status(401).send({ Status: false, message: "plz provide valid token"})
-
-    req.decodedtoken = decodedtoken
+     let Decodedtoken = jwt.verify(token,"Book-Project",(err, decode) => {if (err) {let msg = err.message === "jwt expired"? "Token is expired": "Token is invalid"
+            return msg 
+          }
+          req.decodedtoken = decode
+          return false
+        })
+        if (Decodedtoken) return res.status(400).send({ Status: false, message: Decodedtoken})
 
     next()
 
