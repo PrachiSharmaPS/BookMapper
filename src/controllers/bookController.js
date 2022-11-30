@@ -72,31 +72,22 @@ try {
     
     const bookid = req.params.bookId
 
-    if(Object.keys(bookid).length == 0) {return res.status(400).send({status:false, message:"Please provide bookid in parems"})}
+   // if(Object.keys(bookid).length == 0) {return res.status(400).send({status:false, message:"Please provide bookid in parems"})}
 
     if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
 
-    const data = await bookModel.findOne({_id: bookid},{isDeleted:false})
+    let data = await bookModel.findOne({_id: bookid},{isDeleted:false})
 
     if (!data){return res.status(400).send({status:false, message:"Book not found"})}
 
     const bookreviews = await reviewModel.find({bookId: bookid},{isDeleted:false}).select({isDeleted:0})
+    
+  data=  JSON.parse(JSON.stringify(data))
+ 
+  data.bookreviews=bookreviews
 
-    const newData = {
-        _id : data._id,
-        title : data.title,
-        excerpt : data.excerpt,
-        userId: data.userId,
-        category:data.category,
-        subcategory:data.subcategory,
-        reviews:data.reviews,
-        isDeleted : data.isDeleted,
-        deletedAt :data.deletedAt,
-        releasedAt:data.releasedAt,
-        reviewsData: bookreviews
-    }
 
-    return res.status(200).send({status:true,message:"Success",data:newData})
+    return res.status(200).send({status:true,message:"Success",data:data})
     
 } catch (error) {
     return res.status(500).send({status:false,msg: error.message})
@@ -116,7 +107,7 @@ try {
 
     const bodydata = req.body
 
-    if(Object.keys(bodydata).length == 0) {return res.status(400).send({status:false, message:"Please provide bookid in parems"})}
+   // if(Object.keys(bodydata).length == 0) {return res.status(400).send({status:false, message:"Please provide book in body"})}
 
     const {title,excerpt,releaseAt,ISBN} = bodydata
 
