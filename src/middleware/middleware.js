@@ -33,15 +33,11 @@ const Authorization = async function(req,res,next){
 
     const tokenid = req.decodedtoken.UserId
 
-    if (userId){
-        if (userId != tokenid){ return res.status(403).send({status:false, msg:"you are not allowed to perform this action"})}
-        return next()
-    }
+    if (userId){if (userId != tokenid){ return res.status(403).send({status:false, msg:"you are not allowed to perform this action"})}
+    return next()}
 
     if (bookId){
-
-        if(!isValidObjectId(req.params.bookId)){res.send("no")}
-        
+                
         const bookid = await bookModel.findOne({_id:bookId})
 
         if (!bookid){ return res.status(400).send({status:false, msg:"ID not present"})}

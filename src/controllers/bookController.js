@@ -5,7 +5,7 @@ const reviewModel = require("../models/reviewModel")
 const moment=require('moment')
 //---------------------regex---
 const ISBNregex = RegExp("[0-9]{13}");
-//const nameregex = RegExp("[a-z]/i");
+const nameregex = RegExp("[a-zA-Z0-9\s]");
 
 const createBook=async function(req,res){
 try{
@@ -24,21 +24,16 @@ try{
 
     if(bookInfo){return res.status(400).send({status:false,message:"title/ISBN is already exists"})}
     if (!ISBNregex.test(ISBN)) return res.status(400).send({ status: false, msg: "Please Enter Valid ISBN number" })
+    if (!nameregex.test(title)) return res.status(400).send({ status: false, msg: "Please Enter Valid title" })
+    // if(!mongoose.isValidObjectId(userId)){return res.status(400).send({status:false, message:"Please provide valid Object id"})}
 
-   //if (!nameregex.test(title)) return res.status(400).send({ status: false, msg: "Please Enter Valid title" })
 
-    if(!mongoose.isValidObjectId(userId))
-    {
-        return res.status(400).send({status:false, message:"Please provide valid Object id"})
-    }
     const validUser=await userModel.findOne({_id:userId})
     
-    if(!validUser){
-        return res.status(400).send({status:false, message:"User not found"})
-    }
+    if(!validUser){return res.status(400).send({status:false, message:"User not found"})}
    
- const bookDetail=await bookModel.create(data)
- bookDetail.releasedAt=moment().format('YYYY MM DD')
+    const bookDetail=await bookModel.create(data)
+    bookDetail.releasedAt=moment().format('YYYY MM DD')
     return res.status(201).send({status:true, message:'Success', data:bookDetail})
 
 }catch(err){
@@ -72,19 +67,15 @@ const bookbyid = async function(req,res){
 try {
     
     const bookid = req.params.bookId
-
-    if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
+    // if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
 
     let data = await bookModel.findOne({_id: bookid},{isDeleted:false})
-
     if (!data){return res.status(400).send({status:false, message:"Book not found"})}
 
     const bookreviews = await reviewModel.find({bookId: bookid},{isDeleted:false}).select({isDeleted:0})
     
-  data=  JSON.parse(JSON.stringify(data))
- 
-  data.bookreviews=bookreviews
-
+     data=  JSON.parse(JSON.stringify(data))
+     data.bookreviews=bookreviews
 
     return res.status(200).send({status:true,message:"Success",data:data})
     
@@ -102,7 +93,7 @@ try {
 
     const bookid = req.params.bookId
 
-    if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
+    // if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
 
     const bodydata = req.body
     const {title,excerpt,releaseAt,ISBN} = bodydata
@@ -116,7 +107,6 @@ try {
     if(Object.keys(Obj).length == 0) {return res.status(400).send({status:false, message:"Please provide unique constraints"})}
 
     const unique = await bookModel.findOne({Obj})
-
     if (!unique){return res.status(400).send({status:false, message:"plz provide unique details"})}
 
     const updatedata = await bookModel.findOneAndUpdate({_id:bookid,isDeleted:false},{$set:Obj},{new:true})
@@ -135,14 +125,14 @@ try {
 const deletebyId = async function(req,res){
 
     const bookid  = req.params.bookId
-
-    if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"Please provide valid book ID"})}
+    // if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"Please provide valid book ID"})}
 
     const data = await bookModel.findOne({_id:bookid,isDeleted:false})
-
     if(!data) {return res.status(400).send({status:false, message:"book does not exist or deleted"})}
 
     const deletedata = await bookModel.findOneAndUpdate({_id:bookid,isDeleted:false},{$set:{isDeleted:true}},{new:true})
+
+    await reviewModel.updateMany({bookId:bookid},{$set:{isDeleted:true}})
 
     return res.status(200).send({status: true,message:"success",data:deletedata})
 

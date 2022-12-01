@@ -7,6 +7,7 @@ let regexValidation = new RegExp(/^[a-zA-Z]+([\s][a-zA-Z]+)*$/);
 let regexValidNumber = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/;
 const passwordFormat = /^[a-zA-Z0-9@]{6,10}$/
 
+
 const createUser = async function (req, res){
 try {
     let data = req.body
@@ -23,7 +24,6 @@ try {
     if (!regexValidation.test(name)) return res.status(400).send({ status: false, msg: "Please Enter Valid Name" })
    if (!regexValidNumber.test(phone)) return res.status(400).send({ status: false, msg: "Please Enter Valid Phone Number" })
     if (!emailValidator.validate(email)) return res.status(400).send({ status: false, msg: "Please Enter Valid email ID" })
-    
     const validPassword = passwordFormat.test(password)
     if (!validPassword){return res.status(400).send({ status: false, msg: " Incorrect Password, It should be of 6-10 digits with atlest one special character, alphabet and number" });}
 
