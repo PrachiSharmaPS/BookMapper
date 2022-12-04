@@ -1,11 +1,11 @@
 const userModel = require('../models/userModel')
 const jwt=require("jsonwebtoken")
-// const bookModel = require('../models/bookModel')
+
 const emailValidator = require('email-validator')
 
 let regexValidation = new RegExp(/^[a-zA-Z]+([\s][a-zA-Z]+)*$/);
 let regexValidNumber = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/;
-const passwordFormat = /^[a-zA-Z0-9@]{6,10}$/
+const passwordFormat = /^[a-zA-Z0-9@]{8,15}$/
 
 
 const createUser = async function (req, res){
@@ -17,21 +17,23 @@ try {
 
     if (!title || !name || !phone || !email ||!password) {
         return res.status(400).send({ status: false, msg: "Please Enter mandatory details" })}
-    
+
     if (title != "Mr" && title != "Miss" && title != "Mrs"){
-        return res.status(400).send({ msg: "Please write title like Mr, Mrs, Miss" });
+        return res.status(400).send({ msg: "Please write title like Mr, Mrs, Miss" });//------
     }
     if (!regexValidation.test(name)) return res.status(400).send({ status: false, msg: "Please Enter Valid Name" })
    if (!regexValidNumber.test(phone)) return res.status(400).send({ status: false, msg: "Please Enter Valid Phone Number" })
     if (!emailValidator.validate(email)) return res.status(400).send({ status: false, msg: "Please Enter Valid email ID" })
-    const validPassword = passwordFormat.test(password)
+    const validPassword = passwordFormat.test(password)//-
     if (!validPassword){return res.status(400).send({ status: false, msg: " Incorrect Password, It should be of 6-10 digits with atlest one special character, alphabet and number" });}
 
-    const chkPhone= await userModel.findOne({phone:phone},{email:email},{isDeleted: false })
-    if (chkPhone)return res.status(400).send({ status: false, msg: "Phone/email already exists" });
+    const chkPhone= await userModel.findOne({phone:phone,isDeleted: false })
+    if (chkPhone)return res.status(400).send({ status: false, msg: "Phone already exists" });
+    const chkemail= await userModel.findOne({email:email})
+    if (chkemail)return res.status(400).send({ status: false, msg: "email already exists" });
 
 
-    const user= await userModel.create(data);return  res.status(201).send({ status: true, Data: user })
+    const user= await userModel.create(data);return  res.status(201).send({ status: true,msg:"Succes", data: user })
   } catch (error) {res.status(500).send({ status: false, msg: error.message })}
 }
 // ---------------login----
@@ -47,13 +49,13 @@ const loginData = async function (req, res) {
         return res.status(400).send({ Status: false, massage: "Plase Enter Valid UserName And Password" })}
   
       let userToken = jwt.sign({
-        UserId: userInfo._id.toString(),
+        userId: userInfo._id.toString(),
         iat: Date.now()
       },
         'Book-Project',{expiresIn:"18000s"}
       )
 
-      return res.status(200).send({Status: true, Msg: " Your JWT Token is successful generated",  MyToken: userToken })
+      return res.status(200).send({status: true, msg: " Your JWT Token is successful generated",  myToken: userToken })
     }
     catch (err) {
      return res.status(500).send({ status: false, errer: err })

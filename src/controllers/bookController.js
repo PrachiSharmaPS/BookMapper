@@ -4,7 +4,7 @@ const userModel = require("../models/userModel");
 const reviewModel = require("../models/reviewModel")
 const moment=require('moment')
 //---------------------regex---
-const ISBNregex = RegExp("[0-9]{13}");
+const ISBNregex = RegExp("[0-9-]{13}");
 const nameregex = RegExp("[a-zA-Z0-9\s]");
 
 const createBook=async function(req,res){
@@ -17,16 +17,24 @@ try{
     
 //------------checking all the mandatory fields-------
 
-    if(!userId || !title || !excerpt || !ISBN || !category || !subcategory){
-        return res.status(400).send({status:false, message:"Please provide all necessary book Details"})     }
+    if(!userId ){
+        return res.status(400).send({status:false, message:"Please provide userId "})     }
+    if(!title ){
+        return res.status(400).send({status:false, message:"Please provide title "})     }
+        if (!nameregex.test(title)) return res.status(400).send({ status: false, msg: "Please Enter Valid title" })
+    if(!ISBN ){
+            return res.status(400).send({status:false, message:"Please provide userId "})     }    
+            if (!ISBNregex.test(ISBN)) return res.status(400).send({ status: false, msg: "Please Enter Valid ISBN number" })
 
-    const bookInfo=await bookModel.findOne({$or:[{title:title},{ISBN:ISBN}]})
-
-    if(bookInfo){return res.status(400).send({status:false,message:"title/ISBN is already exists"})}
-    if (!ISBNregex.test(ISBN)) return res.status(400).send({ status: false, msg: "Please Enter Valid ISBN number" })
-    if (!nameregex.test(title)) return res.status(400).send({ status: false, msg: "Please Enter Valid title" })
-    // if(!mongoose.isValidObjectId(userId)){return res.status(400).send({status:false, message:"Please provide valid Object id"})}
-
+        const bookInfo=await bookModel.findOne({$or:[{title:title},{ISBN:ISBN}]})
+        if(bookInfo){return res.status(400).send({status:false,message:"title/ISBN is already exists"})}
+    
+    if(!excerpt ){
+            return res.status(400).send({status:false, message:"Please provide excerpt "})     }
+    if(!category ){
+        return res.status(400).send({status:false, message:"Please provide category "})     }
+    if(!subcategory ){
+        return res.status(400).send({status:false, message:"Please provide subcategory "})     }
 
     const validUser=await userModel.findOne({_id:userId})
     
@@ -40,12 +48,13 @@ try{
     return res.status(500).send({status:false, message:err.message})
 }
 }
+
 //---------------------------get books--------------------------------------------------------------------
 const getbooks = async function (req,res){
 
     try {
 
-    const data = req.query//--------------------------------
+    const data = req.query
         
     const books = await bookModel.find({$and:[data, { isDeleted: false }]}).sort({title:1}).select({_id:1,title:1,excerpt:1, userId:1, category:1, releasedAt:1})
 
@@ -55,7 +64,7 @@ const getbooks = async function (req,res){
 
     } catch (error) {
         
-      return res.status(500).send({msg:error.message})
+      return res.status(500).send({status:false,msg:error.message})
         
     }
 }
@@ -67,14 +76,13 @@ const bookbyid = async function(req,res){
 try {
     
     const bookid = req.params.bookId
-    // if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
-
+   
     let data = await bookModel.findOne({_id: bookid},{isDeleted:false})
     if (!data){return res.status(400).send({status:false, message:"Book not found"})}
 
     const bookreviews = await reviewModel.find({bookId: bookid},{isDeleted:false}).select({isDeleted:0})
     
-     data=  JSON.parse(JSON.stringify(data))
+     data=  JSON.parse(JSON.stringify(data))//-------toObject,
      data.bookreviews=bookreviews
 
     return res.status(200).send({status:true,message:"Success",data:data})
@@ -93,8 +101,6 @@ try {
 
     const bookid = req.params.bookId
 
-    // if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"bookID is invalid"})}
-
     const bodydata = req.body
     const {title,excerpt,releaseAt,ISBN} = bodydata
 
@@ -105,7 +111,7 @@ try {
     if (ISBN) {Obj.ISBN = ISBN}
 
     if(Object.keys(Obj).length == 0) {return res.status(400).send({status:false, message:"Please provide unique constraints"})}
-
+//--db call for unique ----
     const unique = await bookModel.findOne({Obj})
     if (!unique){return res.status(400).send({status:false, message:"plz provide unique details"})}
 
@@ -125,16 +131,15 @@ try {
 const deletebyId = async function(req,res){
 
     const bookid  = req.params.bookId
-    // if (!mongoose.isValidObjectId(bookid)){return res.status(400).send({status:false, message:"Please provide valid book ID"})}
-
+  
     const data = await bookModel.findOne({_id:bookid,isDeleted:false})
     if(!data) {return res.status(400).send({status:false, message:"book does not exist or deleted"})}
 
-    const deletedata = await bookModel.findOneAndUpdate({_id:bookid,isDeleted:false},{$set:{isDeleted:true}},{new:true})
+    const deletedata = await bookModel.findOneAndUpdate({_id:bookid,isDeleted:false},{$set:{isDeleted:true}},{new:true})//-------
 
     await reviewModel.updateMany({bookId:bookid},{$set:{isDeleted:true}})
 
-    return res.status(200).send({status: true,message:"success",data:deletedata})
+    return res.status(200).send({status: true,message:"success"})
 
 }
 
