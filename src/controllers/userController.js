@@ -15,12 +15,20 @@ try {
 
     const { title, name, phone, email, password} = data
 
-    if (!title || !name || !phone || !email ||!password) {
-        return res.status(400).send({ status: false, msg: "Please Enter mandatory details" })}
+    if(!title ){
+      return res.status(400).send({status:false, message:"Please provide title "})     }
 
     if (title != "Mr" && title != "Miss" && title != "Mrs"){
         return res.status(400).send({ msg: "Please write title like Mr, Mrs, Miss" });//------
     }
+    if(!name ){
+      return res.status(400).send({status:false, message:"Please provide name "})     }
+    if(!phone ){
+      return res.status(400).send({status:false, message:"Please provide phone "})     }
+    if(!password ){
+      return res.status(400).send({status:false, message:"Please provide password "})     }
+
+
     if (!regexValidation.test(name)) return res.status(400).send({ status: false, msg: "Please Enter Valid Name" })
    if (!regexValidNumber.test(phone)) return res.status(400).send({ status: false, msg: "Please Enter Valid Phone Number" })
     if (!emailValidator.validate(email)) return res.status(400).send({ status: false, msg: "Please Enter Valid email ID" })

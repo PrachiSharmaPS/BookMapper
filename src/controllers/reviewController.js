@@ -18,7 +18,8 @@ try{
     
     if(reviewedBy) {if(reviewedBy.trim().length==0)return res.status(400).send({status:false, msg:"reviewer name can't be empty"}) }
 
-    if(!review || !rating){return res.status(400).send({status:false, message:"Please provide all neccessary Details"})}
+    if(!review ){return res.status(400).send({status:false, message:"Please provide review"})}
+    if(!rating){return res.status(400).send({status:false, message:"Please provide rating"})}
   //---------------
     
     let updatedbook= await bookModel.findOneAndUpdate({_id:bookID,isDeleted:false},{$inc:{reviews:+1}},{new:true})
