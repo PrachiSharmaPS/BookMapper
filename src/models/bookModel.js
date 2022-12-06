@@ -9,6 +9,7 @@ const bookSchema= new mongoose.Schema({
             unique:true,
             trim:true
         },
+        bookcover:{type:String},
         excerpt: {
             type:String,
             require:true,

@@ -4,8 +4,12 @@ const route = require('./routes/route.js');
 
 const app = express();
 
+const multer = require ("multer")
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(multer().any())
 
 mongoose.connect("mongodb+srv://vishwasw75:9595335675@firstcluster.jde07cq.mongodb.net/group12Database", {
     useNewUrlParser: true

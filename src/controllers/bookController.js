@@ -115,7 +115,7 @@ try {
     const unique = await bookModel.findOne({Obj})
     if (!unique){return res.status(400).send({status:false, message:"plz provide unique details"})}
 
-    const updatedata = await bookModel.findOneAndUpdate({_id:bookid,isDeleted:false},{$set:Obj},{new:true})
+    const updatedata = await bookModel.findOneAndUpdate({_id:bookid,isDeleted:false},{$set:Obj},{new:true})//------need update
 
     return res.status(200).send({status: true,message:"success",data:updatedata})
 
