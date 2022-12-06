@@ -50,6 +50,7 @@ const loginData = async function (req, res) {
       let userdata = req.body
       
       let {email,password}=userdata
+      if (!emailValidator.validate(email)) return res.status(400).send({ status: false, msg: "Please Enter Valid email ID" })
 
 
       let userInfo = await userModel.findOne({ email: email, password: password });

@@ -8,6 +8,7 @@ const isValid=function(value){
     if(typeof value==='undefined'|| value=== null)return false
     if(typeof value==='string'&& value.trim().length===0)return false
     if(typeof value==='number'&& value.toString().trim().length=== 0)return false
+    return true
   }
 //---------------------regex-------------------
 const ISBNregex = RegExp("[0-9-]{13}");
@@ -35,16 +36,17 @@ if(!isValid(title)){
     if(!isValid(subcategory)){
         return res.status(400).send({status:false, message:"subcategory is required "})     }
 
-        if (!mongoose.isValidObjectId(userId)){return res.status(400).send({status:false, message:"Please provide valid book ID"})}
+    if (!mongoose.isValidObjectId(userId)){return res.status(400).send({status:false, message:"Please provide valid book ID"})}
 
     const validUser=await userModel.findOne({_id:userId})
     if(!validUser){return res.status(400).send({status:false, message:"User not found"})}
 
     const bookInfo=await bookModel.findOne({$or:[{title:title},{ISBN:ISBN}]})
     if(bookInfo){return res.status(400).send({status:false,message:"title/ISBN is already exists"})}
-    bookDetail.releasedAt=moment().format('YYYY MM DD')
-
+  
     const bookDetail=await bookModel.create(data)
+
+    bookDetail.releasedAt=moment().format('YYYY MM DD')
 
     return res.status(201).send({status:true, message:'Success', data:bookDetail})
 }catch(err){
@@ -63,8 +65,7 @@ if(!isValid(title)){
                 return res.status(200).send({ status: true, message: 'Books list', data: getAllBooks })
             }
             if (userId) {
-                let isValidId = mongoose.Types.ObjectId.isValid(userId)
-                if (!isValidId) {
+                if (!mongoose.isValidObjectId(userId)) {
                     return res.status(400).send({ status: false, message: "Enter valid user id" })
                 }
                  filterData.userId = userId
@@ -75,6 +76,8 @@ if(!isValid(title)){
             if (subcategory) {
                 filterData.subcategory = subcategory
             }
+            if (Object.keys(filterData).length == 1) {return res.status(400).send({ status: false, message: "you can't find data with that key" })} 
+                    
             let findBooks = await bookModel.find(filterData).sort({ title: 1 }).select({_id:1, title:1, excerpt:1, userId:1, category:1, subcategory:1, releasedAt:1, reviews:1})
             if (findBooks.length == 0) {
                 return res.status(404).send({ status: false, message: "No data found" })
@@ -92,14 +95,14 @@ const bookbyid = async function(req,res){
 try {
     
     const bookid = req.params.bookId
-    let data = await bookModel.findById({bookid})//.Line()
+
+    let data = await bookModel.findById(bookid).lean()
 
     if (!data){return res.status(404).send({status:false, message:"Book not found"})}
     if (data.isDeleted===true){return res.status(404).send({status:false, message:"Book is deleted"})}
 
     const bookreviews = await reviewModel.find({bookId: bookid},{isDeleted:false}).select({isDeleted:0})
-    
-     data=  JSON.parse(JSON.stringify(data))
+
      data.bookreviews=bookreviews
 
     return res.status(200).send({status:true,message:"Success",data:data})
@@ -119,7 +122,7 @@ try {
     const bodydata = req.body
     const {title,excerpt,releasedAt,ISBN} = bodydata
 
-    if (!ISBNregex.test(ISBN)) return res.status(400).send({ status: false, msg: "Please Enter Valid ISBN number" })
+    if(ISBN){if (!ISBNregex.test(ISBN)) return res.status(400).send({ status: false, msg: "Please Enter Valid ISBN number" })}
 
     const Obj = {}
     if (title) {Obj.title =  title}
@@ -131,11 +134,13 @@ try {
     if (title) {Obj.title =  title}
     if (ISBN) {Obj.ISBN = ISBN}
 
- if(Object.keys(Obj).length === 0) {return res.status(400).send({status:false, message:"Please provide unique constraints"})}
- //--db call for unique ----   
- const unique = await bookModel.findOne({uniqueFeilds})
-    if (unique){return res.status(400).send({status:false, message:"plz provide unique details"})}
-   
+    if(Object.keys(Obj).length === 0) {return res.status(400).send({status:false, message:"Please provide unique constraints"})}
+
+    //--db call for unique ----   
+    if(Object.keys(uniqueFeilds).length != 0){
+    const unique = await bookModel.findOne({uniqueFeilds})
+    if (unique){return res.status(400).send({status:false, message:"plz provide unique details"})}}
+
     const updatedata = await bookModel.findOneAndUpdate({_id:bookid,isDeleted:false},{$set:Obj},{new:true})
 
     return res.status(200).send({status: true,message:"success",data:updatedata})
